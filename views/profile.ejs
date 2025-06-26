@@ -3,33 +3,35 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- <%- include('./partials/header') %>  -->
     <title>Bootstrap demo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/stylesheets/profile.css">
   </head>
   <body>
+    <!-- to include the navbar -->
+    <%- include('partials/navbar') %>
+
     <main class="containerpers">
       <div class="profile">
           <div class="avatar-container">
-              <img src="https://plus.unsplash.com/premium_photo-1701111288521-83b5df896e64?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8YmlyZCUyMGZhY2V8ZW58MHx8MHx8fDA%3D" alt="" class="avatar">
-              <button class="edit-btn"><i class="bi bi-pen"></i></button>
-              <input type="file" id="profileImageInput" name="image" style="display:none;">
+            <img src="<%= user.dp || 'https://plus.unsplash.com/premium_photo-1701111288521-83b5df896e64?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8YmlyZCUyMGZhY2V8ZW58MHx8MHx8fDA%3D' %>" alt="" class="avatar">
+            <button class="edit-btn"><i class="bi bi-pen"></i></button>
+            <form id="avatarUploadForm" action="/upload-avatar" method="post" enctype="multipart/form-data" style="display:none;">
+                <input type="file" id="profileImageInput" name="dp" style="display:none;">
+            </form>
           </div>
-          
           <p class="">Some tagline</p>
-          <h1 class="username"><%= user.username%></h1>
-          <h4 class="email"><%= user.email%></h4>
+          <h1 class="username"><%= user.username %></h1>
+          <h4 class="email"><%= user.email %></h4>
           <p class="">some<br> description</p>
-          <a href="/logout" class="button">Logout</a>
-          <!-- for uploading post (using multer) -->
-          <form action="/upload" method="post" enctype="multipart/form-data">
+          <!-- <a href="/logout" class="button">Logout</a> -->
+          <!-- Separate form for posts -->
+          <form id="profileUploadForm" action="/upload" method="post" enctype="multipart/form-data">
               <input type="text" name="filecaption" placeholder="some caption">
               <input type="file" name="file">
-              <input type="submit" name="submit">
+              <input type="submit" value="Submit">
           </form>
-          <!-- for uploading post (using multer) -->
           <div class="icons">
               <a href=""><i class="bi bi-github"></i></a>
               <a href=""><i class="bi bi-twitter"></i></a>
@@ -37,26 +39,30 @@
           </div>
       </div>
     </main>
-
     <div class="container">
         <div class="cards flex">
-          <% user.posts.forEach(function(post){%>
+          <% user.posts.forEach(function(post){ %>
             <div class="card" style="width: 18rem;">
               <img src="/images/uploads/<%= post.image %>" class="card-img-top" alt="...">
               <div class="card-body">
-                  <h5 class="card-title"><%=post.imageText%></h5>
+                  <h5 class="card-title"><%= post.imageText %></h5>
               </div>
-          </div>
+            </div>
           <% }) %>
         </div>
     </div>
-
     <h1>Hello, world!</h1>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
   </body>
   <script>
     document.querySelector(".edit-btn").addEventListener("click", function() {
-      document.querySelector("#profileImageInput").click();
+        console.log("Edit button clicked");
+        document.querySelector("#profileImageInput").click();
+    });
+
+    document.querySelector("#profileImageInput").addEventListener("change", function() {
+        console.log("File selected:", this.files);
+        document.querySelector("#avatarUploadForm").submit();
     });
   </script>
 </html>
