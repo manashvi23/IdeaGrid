@@ -72,3 +72,125 @@ img:hover {
     columns: 1;
   }
 }
+/* download btn css............................... */
+/* General container for the grid - assuming .container is from Bootstrap */
+.container {
+    padding: 20px;
+    display: grid; /* Use CSS Grid for the main layout */
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Min-width for columns */
+    gap: 15px; /* Gap between grid items */
+    justify-content: center; /* Center items if they don't fill the row */
+}
+
+/* Styles for each individual post card */
+.box {
+    background-color: #1a1a1a; /* Your chosen dark background */
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+
+    display: flex;
+    flex-direction: column; /* Stack children vertically */
+    height: 280px; /* Overall box height */
+    padding-bottom: 0; 
+
+    transition: transform 0.2s ease-in-out;
+}
+
+.box:hover {
+    transform: translateY(-5px);
+}
+
+.box img {
+    width: 100%;
+    height: 80%; /* Image takes 80% of the box height */
+    object-fit: cover; /* Ensures image covers the area, cropping if necessary */
+    display: block;
+    border-radius: 10px 10px 0 0; /* Rounded top corners */
+}
+
+/* Container for captions and download button (the 20% part) */
+.content-area {
+    flex-grow: 1; /* Allows this area to fill remaining space */
+    height: 20%; /* Explicitly set to 20% of the .box height */
+    display: flex;
+    flex-direction: column; /* Stack main caption and info-actions-row vertically */
+    justify-content: space-evenly; /* Distribute space evenly */
+    align-items: center; /* Center horizontally (for the main caption primarily) */
+    padding: 3px 5px; /* Padding for the entire content area */
+    width: 100%; /* Ensure it takes full width of the box */
+    box-sizing: border-box; /* Include padding in the height calculation */
+}
+
+/* Styles for the main image text caption */
+.box .caption.post-title-caption {
+    font-size: 0.8em; /* Smaller text for main caption */
+    color: #f0f0f0;
+    text-align: center;
+    width: 100%;
+    margin: 0;
+    line-height: 1.1;
+    white-space: nowrap; /* Prevent wrapping */
+    overflow: hidden; /* Hide overflow */
+    text-overflow: ellipsis; /* Add "..." for truncated text */
+}
+
+/* NEW STYLES: For the row containing "Posted by" and Download Button */
+.post-info-actions {
+    display: flex; /* Use flexbox for side-by-side layout */
+    flex-direction: row; /* Arrange children horizontally */
+    justify-content: space-between; /* Pushes items to opposite ends */
+    align-items: center; /* Vertically center items in the row */
+    width: 100%; /* Take full width of content-area */
+    padding: 0 5px; /* Add some horizontal padding to prevent touching edges */
+    box-sizing: border-box;
+    margin-top: 5px; /* Space from the main caption above it */
+}
+
+/* Styles for the "Posted by" caption */
+.box .caption.posted-by-caption {
+    font-size: 0.7em; /* Smallest for secondary text */
+    color: #bbb;
+    margin: 0; /* Remove default margin */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* max-width: 60%; */ /* Optional: limit width if text is very long and conflicts with button */
+}
+
+/* Styles for the download button container */
+.download-container {
+    /* No margin-top needed here, flexbox handles spacing */
+    text-align: right; /* Align button to the right within its flex item */
+    /* If you want to control its share of space more precisely: */
+    /* flex-shrink: 0; */ /* Don't shrink */
+}
+
+/* Styles for the custom download button */
+.custom-download-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px; /* Space between icon and text */
+    padding: 4px 8px; /* FURTHER REDUCED PADDING: Make the button physically even smaller */
+    background-color: #e60023;
+    color: white;
+    text-decoration: none;
+    border-radius: 16px; /* Slightly smaller border-radius */
+    font-size: 0.7em; /* FURTHER REDUCED FONT SIZE: Smallest font for button text */
+    font-weight: 500;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); /* Smallest shadow */
+}
+
+.custom-download-btn:hover {
+    background-color: #ad081b;
+    transform: translateY(-1px);
+    box-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.3);
+}
+
+.custom-download-btn i {
+    font-size: 0.8em; /* Smallest icon size */
+}
+/* download btn css........................ */

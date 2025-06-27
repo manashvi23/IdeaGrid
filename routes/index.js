@@ -130,6 +130,23 @@ function isLoggedIn(req, res, next) {
   res.redirect("/login");
 }
 
+//download feature...
+router.get('/download/:filename', function(req, res) {
+  const filePath = path.join(__dirname, '../public/images/uploads', req.params.filename);
+  res.download(filePath, function(err) {
+    if (err) {
+      console.error("Download error:", err);
+      res.status(500).send("File not found or download error");
+    }
+  });
+});
+
+
+
+
+
+
+
 module.exports = router;
 
 
