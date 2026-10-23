@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;800&display=swap');
 @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"); /* Updated to latest version */
 
@@ -99,3 +100,19 @@ body {
   align-items: start;
 }
 
+
+/* for opening avatar */
+/* Ensure your base avatar has a transition and pointer cursor */
+.avatar {
+  cursor: pointer;
+  transition: all 0.3s ease-in-out; /* Makes the zoom smooth */
+  position: relative;
+  z-index: 1;
+}
+
+/* The class we will trigger with JavaScript */
+.avatar.zoomed-avatar {
+  transform: scale(2.5); /* Adjust this number to make it bigger or smaller (e.g., 2.0 or 3.0) */
+  z-index: 1050; /* Brings it above all other text and icons */
+  box-shadow: 0 15px 35px rgba(0,0,0,0.4); /* Adds depth so it looks elevated */
+}

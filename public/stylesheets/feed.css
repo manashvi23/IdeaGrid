@@ -9,188 +9,127 @@ body {
   background-color: #262626;
 }
 
+/* 👇 CHANGED: Removed conflicting duplicate containers. Enforced strict 3-column Grid. */
 .container {
-  padding-top: 13vh;
-  width: 80%;
+  padding: 13vh 20px 20px 20px;
+  width: 90%;
+  max-width: 1200px;
   margin: auto;
-  columns: 6;
-  column-gap: 20px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 👈 Forces exactly 3 columns per line */
+  gap: 25px; /* Spacing between the posts */
+}
+
+/* Responsive breakpoints so it doesn't break on smaller screens */
+@media (max-width: 992px) {
+  .container { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  .container { grid-template-columns: 1fr; }
 }
 
 .box {
-  width: 100%;
-  margin-bottom: 10px;
-  break-inside: avoid;
-  border-radius: 15px;
-}
-
-.box img {
-  max-width: 100%;
-  min-width: 100%;
+  background-color: #1a1a1a;
   border-radius: 10px;
-}
-
-img:hover {
-  opacity: 0.95;
-  box-shadow: 0 0 10px #fff;
-}
-
-.caption {
-  color: #fff;
-  font-family: Arial, Helvetica, sans-serif;
-  padding: 2px;
-}
-
-/* Responsive breakpoints */
-@media (max-width: 1427px) {
-  .container {
-    columns: 5;
-    width: calc(100% - 40px);
-  }
-}
-
-@media (max-width: 1200px) {
-  .container {
-    columns: 4;
-  }
-}
-
-@media (max-width: 1000px) {
-  .container {
-    columns: 3;
-  }
-}
-
-@media (max-width: 786px) {
-  .container {
-    columns: 2;
-  }
-}
-
-@media (max-width: 480px) {
-  .container {
-    columns: 1;
-  }
-}
-/* download btn css............................... */
-/* General container for the grid - assuming .container is from Bootstrap */
-.container {
-    padding: 20px;
-    display: grid; /* Use CSS Grid for the main layout */
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Min-width for columns */
-    gap: 15px; /* Gap between grid items */
-    justify-content: center; /* Center items if they don't fill the row */
-}
-
-/* Styles for each individual post card */
-.box {
-    background-color: #1a1a1a; /* Your chosen dark background */
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-
-    display: flex;
-    flex-direction: column; /* Stack children vertically */
-    height: 280px; /* Overall box height */
-    padding-bottom: 0; 
-
-    transition: transform 0.2s ease-in-out;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  /* 👇 CHANGED: Removed the hardcoded 'height: 280px'. Now it grows automatically to fit all buttons and text. */
+  height: auto; 
+  transition: transform 0.2s ease-in-out;
 }
 
 .box:hover {
-    transform: translateY(-5px);
+  transform: translateY(-5px);
 }
 
 .box img {
-    width: 100%;
-    height: 80%; /* Image takes 80% of the box height */
-    object-fit: cover; /* Ensures image covers the area, cropping if necessary */
-    display: block;
-    border-radius: 10px 10px 0 0; /* Rounded top corners */
+  width: 100%;
+  /* 👇 CHANGED: Removed 80% height. Gave images a fixed height to keep the 3-column grid perfectly aligned. */
+  height: 250px; 
+  object-fit: cover;
+  display: block;
+  border-radius: 10px 10px 0 0;
 }
 
-/* Container for captions and download button (the 20% part) */
 .content-area {
-    flex-grow: 1; /* Allows this area to fill remaining space */
-    height: 20%; /* Explicitly set to 20% of the .box height */
-    display: flex;
-    flex-direction: column; /* Stack main caption and info-actions-row vertically */
-    justify-content: space-evenly; /* Distribute space evenly */
-    align-items: center; /* Center horizontally (for the main caption primarily) */
-    padding: 3px 5px; /* Padding for the entire content area */
-    width: 100%; /* Ensure it takes full width of the box */
-    box-sizing: border-box; /* Include padding in the height calculation */
+  /* 👇 CHANGED: Removed strict 20% height limitation. Added comfortable padding. */
+  flex-grow: 1; 
+  display: flex;
+  flex-direction: column;
+  padding: 15px; 
+  width: 100%;
 }
 
-/* Styles for the main image text caption */
 .box .caption.post-title-caption {
-    font-size: 0.8em; /* Smaller text for main caption */
-    color: #f0f0f0;
-    text-align: center;
-    width: 100%;
-    margin: 0;
-    line-height: 1.1;
-    white-space: nowrap; /* Prevent wrapping */
-    overflow: hidden; /* Hide overflow */
-    text-overflow: ellipsis; /* Add "..." for truncated text */
+  font-size: 1rem; 
+  color: #f0f0f0;
+  margin-bottom: 10px; /* Space below title */
+  line-height: 1.3;
+  /* 👇 CHANGED: Removed 'white-space: nowrap' so long captions can wrap to a second line instead of being hidden */
 }
 
-/* NEW STYLES: For the row containing "Posted by" and Download Button */
 .post-info-actions {
-    display: flex; /* Use flexbox for side-by-side layout */
-    flex-direction: row; /* Arrange children horizontally */
-    justify-content: space-between; /* Pushes items to opposite ends */
-    align-items: center; /* Vertically center items in the row */
-    width: 100%; /* Take full width of content-area */
-    padding: 0 5px; /* Add some horizontal padding to prevent touching edges */
-    box-sizing: border-box;
-    margin-top: 5px; /* Space from the main caption above it */
+  display: flex;
+  flex-direction: column; /* 👇 CHANGED: Stacked author above buttons to give the buttons more horizontal room */
+  gap: 12px;
+  width: 100%;
+  margin-top: auto; /* Pushes this entire section to the bottom of the card */
+  padding-top: 10px;
+  border-top: 1px solid #333; /* Adds a nice subtle divider line */
 }
 
-/* Styles for the "Posted by" caption */
 .box .caption.posted-by-caption {
-    font-size: 0.7em; /* Smallest for secondary text */
-    color: #bbb;
-    margin: 0; /* Remove default margin */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    /* max-width: 60%; */ /* Optional: limit width if text is very long and conflicts with button */
+  font-size: 0.8em;
+  color: #bbb;
+  margin: 0;
 }
 
-/* Styles for the download button container */
 .download-container {
-    /* No margin-top needed here, flexbox handles spacing */
-    text-align: right; /* Align button to the right within its flex item */
-    /* If you want to control its share of space more precisely: */
-    /* flex-shrink: 0; */ /* Don't shrink */
+  display: flex;
+  justify-content: space-between; /* 👇 CHANGED: Pushes the Save button to the left, Like button to the right */
+  align-items: center;
+  width: 100%;
 }
 
-/* Styles for the custom download button */
 .custom-download-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px; /* Space between icon and text */
-    padding: 4px 8px; /* FURTHER REDUCED PADDING: Make the button physically even smaller */
-    background-color: #e60023;
-    color: white;
-    text-decoration: none;
-    border-radius: 16px; /* Slightly smaller border-radius */
-    font-size: 0.7em; /* FURTHER REDUCED FONT SIZE: Smallest font for button text */
-    font-weight: 500;
-    transition: background-color 0.2s ease, transform 0.1s ease;
-    cursor: pointer;
-    border: none;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); /* Smallest shadow */
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px; /* Gave it slightly more padding so it looks like a real button */
+  background-color: #e60023;
+  color: white;
+  text-decoration: none;
+  border-radius: 16px;
+  font-size: 0.8em;
+  font-weight: 500;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  cursor: pointer;
+  border: none;
 }
 
 .custom-download-btn:hover {
-    background-color: #ad081b;
-    transform: translateY(-1px);
-    box-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.3);
+  background-color: #ad081b;
+  transform: translateY(-1px);
 }
 
-.custom-download-btn i {
-    font-size: 0.8em; /* Smallest icon size */
+/* 👇 NEW: Added specific styling to make the Like button text readable on dark background */
+.like-btn {
+  font-size: 0.9em;
+  color: #fff !important; 
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
-/* download btn css........................ */
+
+.like-btn i {
+  font-size: 1.1em;
+}
+
+
+
+
+
+
+

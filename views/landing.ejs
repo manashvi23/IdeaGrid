@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IdeaGrid | Welcome</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-dark text-light">
+    <!-- adding navbar -->
+    <nav class="navbar navbar-dark bg-dark fixed-top navbar-expand-lg shadow-sm">
+        <div class="container">
+
+            <!-- Logo -->
+            <a class="navbar-brand fw-bold fs-4" href="#">IdeaGrid</a>
+
+            <!-- Hamburger -->
+            <button 
+            class="navbar-toggler" 
+            type="button" 
+            data-bs-toggle="collapse" 
+            data-bs-target="#navbarMenu"
+            >
+            <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Menu -->
+            <div class="collapse navbar-collapse justify-content-end" id="navbarMenu">
+            
+            <% if (isLoggedIn) { %>
+                <a href="/profile" class="btn btn-success ms-2">Profile</a>
+            <% } else { %>
+                <a href="/login" class="btn btn-outline-light ms-2">Login</a>
+                <a href="/register" class="btn btn-primary ms-2">Register</a>
+            <% } %>
+
+            </div>
+
+        </div>
+    </nav>
+        <!-- adding navbar -->
+
+
+
+    <div class="container text-center" style="margin-top: 120px;">
+        <h1 class="display-3 fw-bold mb-3">Welcome to IdeaGrid</h1>
+        <p class="lead mb-5">Share Ideas. Generate Captions. Build Your Streak.</p>
+        
+        <% if (isLoggedIn) { %>
+            <a href="/profile" class="btn btn-success btn-lg px-5 py-3 fs-5 fw-bold rounded-pill shadow">
+                Go to Profile
+            </a>
+        <% } else { %>
+            <a href="/login" class="btn btn-primary btn-lg px-5 py-3 fs-5 fw-bold rounded-pill shadow">
+                Login / Get Started
+            </a>
+        <% } %>
+    </div>
+
+   <div class="container text-center" style="margin-top: 120px;">
+        <div class="row g-4 text-center">
+            
+            <div class="col-md-4">
+                <div class="card bg-dark text-light border-secondary h-100 p-4 shadow">
+                    <div class="display-4 mb-3">🤖</div>
+                    <h3 class="fs-4 text-info">AI Moderation</h3>
+                    <p class="text-secondary mt-2">Powered by the Google Gemini API to autonomously keep the community clean and generate smart captions.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card bg-dark text-light border-secondary h-100 p-4 shadow">
+                    <div class="display-4 mb-3">⚡</div>
+                    <h3 class="fs-4 text-warning">Real-Time Sync</h3>
+                    <p class="text-secondary mt-2">Experience instant interactions. Like, save, and follow without ever reloading the page using our asynchronous engine.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card bg-dark text-light border-secondary h-100 p-4 shadow">
+                    <div class="display-4 mb-3">📈</div>
+                    <h3 class="fs-4 text-success">Gamified Streaks</h3>
+                    <p class="text-secondary mt-2">Track your engagement and daily posting streaks with beautiful, dynamic visual dashboards.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

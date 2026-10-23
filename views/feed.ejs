@@ -10,28 +10,327 @@
 </head>
 <body>
   <%- include('partials/navbar') %>
-  <div class="container">
-    <% posts.forEach(function(elem) { %>
-      <div class="box">
-        <img src="/images/uploads/<%= elem.image %>" alt="<%= elem.imageText || 'No caption' %>">
-
-        <div class="content-area">
-          <p class="caption post-title-caption"><%= elem.imageText || 'No caption' %></p>
-
-          <div class="post-info-actions">
-            <p class="caption posted-by-caption">Posted by: <%= elem.user ? elem.user.username : 'Unknown' %></p>
-            <div class="download-container">
-              <a href="/images/uploads/<%= elem.image %>"
-                 download="<%= elem.imageText ? elem.imageText.replace(/[^a-zA-Z0-9]/g, '_') : 'post' %>_by_<%= elem.user ? elem.user.username : 'unknown' %><%= elem.image.substring(elem.image.lastIndexOf('.')) %>"
-                 class="custom-download-btn">
-                <i class="fas fa-download"></i> Download
-              </a>
-            </div>
-          </div>
-          </div>
-      </div>
-    <% }) %>
+  
+  <div class="d-flex justify-content-center w-100 mt-4 mb-4">
+    <div class="btn-group shadow-sm" role="group" aria-label="Feed View Toggle">
+      <a href="/feed?view=global" class="btn <%= currentView === 'global' ? 'btn-dark' : 'btn-outline-dark' %> px-4">
+        <i class="fas fa-globe me-2"></i> Explore
+      </a>
+      <a href="/feed?view=following" class="btn <%= currentView === 'following' ? 'btn-dark' : 'btn-outline-dark' %> px-4">
+        <i class="fas fa-user-friends me-2"></i> Following
+      </a>
+    </div>
   </div>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+  <div class="d-flex flex-wrap justify-content-center" style="gap: 30px; max-width: 1300px; margin: 0 auto; padding: 0 15px;">
+    <% if (posts && posts.length > 0) { %>
+      <% posts.forEach(function(elem) { %>
+        <div class="box" style="width: 320px; flex-shrink: 0;">
+          <img src="<%= elem.image %>" class="card-img-top" alt="..." style="width: 100%; height: auto; border-radius: 8px 8px 0 0;">
+
+          <div class="content-area">
+            <p class="caption post-title-caption"><%= elem.imageText || 'No caption' %></p>
+
+            <div class="post-info-actions">
+              <!-- <p class="caption posted-by-caption">
+                Posted by: 
+                <% if (elem.user) { %>
+                  <a href="/profile/<%= elem.user.username %>" class="text-info text-decoration-none fw-bold">
+                    <%= elem.user.username %>
+                  </a>
+                <% } else { %>
+                  Unknown
+                <% } %>
+              </p> -->
+              <!-- adding follow/unfollow btn -->
+              <div class="d-flex align-items-center mb-2">
+                <p class="caption posted-by-caption m-0">
+                  Posted by: 
+                  <% if (elem.user) { %>
+                    <a href="/profile/<%= elem.user.username %>" class="text-info text-decoration-none fw-bold ms-1">
+                      <%= elem.user.username %>
+                    </a>
+                  <% } else { %>
+                    <span class="ms-1">Unknown</span>
+                  <% } %>
+                </p>
+                
+                <% if (user && elem.user && elem.user.username !== user.username) { %>
+                  <% const isFollowing = user.following && user.following.some(id => id.toString() === elem.user._id.toString()); %>
+                  <button class="btn btn-sm <%= isFollowing ? 'btn-outline-secondary' : 'btn-primary' %> ms-3 feed-follow-btn" style="padding: 2px 10px; font-size: 0.75rem; border-radius: 12px;" data-userid="<%= elem.user._id %>">
+                    <%= isFollowing ? 'Following' : 'Follow' %>
+                  </button>
+                <% } %>
+                </div>
+              <!-- adding follow/unfollow btn -->
+              <div class="download-container">
+                <a href="<%= elem.image %>" target="_blank" class="btn btn-sm btn-outline-secondary me-2" title="View Full Image">
+                  <i class="fas fa-expand-arrows-alt"></i>
+                </a>
+                
+                <a href="javascript:void(0)" data-postid="<%= elem._id %>" class="custom-download-btn save-btn me-auto">
+                  <i class="fas fa-save"></i> <span>Save to Profile</span>
+                </a>
+                
+                <a href="javascript:void(0)" data-postid="<%= elem._id %>" class="like-btn text-decoration-none text-dark me-3">
+                  <i class="<%= (user && elem.likes && elem.likes.includes(user._id)) ? 'fas fa-heart text-danger' : 'far fa-heart' %>"></i>
+                  <span class="likes-count"><%= elem.likes ? elem.likes.length : 0 %></span> Likes
+                </a>
+              </div>
+            </div>
+
+            <div class="comments-section mt-3 border-top border-secondary pt-2">
+              <div class="comments-list" id="comments-list-<%= elem._id %>" style="max-height: 80px; overflow-y: auto; font-size: 0.8em; margin-bottom: 10px;">
+                <% if (elem.comments && elem.comments.length > 0) { %>
+                  <% elem.comments.forEach(function(comment) { %>
+                    <p class="mb-1 text-light">
+                      <strong class="text-white"><%= comment.user ? comment.user.username : 'Unknown' %>:</strong> <%= comment.commentText %>
+                    </p>
+                  <% }) %>
+                <% } %>
+              </div>
+
+              <form class="comment-form d-flex" data-postid="<%= elem._id %>">
+                <input type="text" name="commentText" class="form-control form-control-sm bg-dark text-light border-secondary comment-input" placeholder="Add a comment..." required>
+                <button type="submit" class="btn btn-sm btn-outline-light ms-2">Post</button>
+              </form>
+            </div>
+            
+            <% if (user && elem.user && elem.user.username === user.username) { %>
+              <div class="mt-2 text-end">
+                <a href="javascript:void(0)" data-postid="<%= elem._id %>" class="btn btn-sm btn-outline-danger delete-post-btn" title="Delete Post">
+                  <i class="fas fa-trash-alt"></i>
+                </a>
+              </div>
+            <% } %>
+
+          </div>
+        </div>
+      <% }) %>
+    <% } else { %>
+      <div class="w-100 text-center mt-5">
+        <h4 class="text-muted">No posts to show.</h4>
+        <p class="text-muted">Follow some users to see their posts here!</p>
+      </div>
+    <% } %>
+  </div>
+  <div class="d-flex justify-content-center gap-3 w-100 mt-5 mb-5">
+    <% if (currentPage > 1) { %>
+      <a href="/feed?view=<%= currentView %>&page=<%= currentPage - 1 %>" class="btn btn-outline-primary">&laquo; Previous</a>
+    <% } %>
+
+    <span class="btn btn-light disabled">Page <%= currentPage %> of <%= totalPages %></span>
+
+    <% if (currentPage < totalPages) { %>
+      <a href="/feed?view=<%= currentView %>&page=<%= currentPage + 1 %>" class="btn btn-outline-primary">Next &raquo;</a>
+    <% } %>
+  </div> 
+  <script>
+
+    // Find all the like buttons on the page....for like btn.........
+  const likeButtons = document.querySelectorAll('.like-btn');
+
+  likeButtons.forEach(button => {
+    button.addEventListener('click', async function() {
+      const postId = this.getAttribute('data-postid');
+      const icon = this.querySelector('i');
+      const countSpan = this.querySelector('.likes-count');
+
+      try {
+        // Send background request to toggle the like state
+        const response = await fetch(`/like/${postId}`);
+        const data = await response.json();
+
+        if (data.success) {
+          // Update the numeric count text
+          countSpan.innerText = data.likesCount;
+
+          // Toggle visual heart styles instantly based on the server response
+          if (data.isLiked) {
+            icon.className = "fas fa-heart text-danger"; // Filled red heart
+          } else {
+            icon.className = "far fa-heart"; // Outlined heart
+          }
+        }
+      } catch (err) {
+        console.error("Error updating like status:", err);
+      }
+    });
+  });
+  // for like btn.........^
+
+  //for comments....
+  // --- AJAX COMMENTS SCRIPT ---
+  const commentForms = document.querySelectorAll('.comment-form');
+
+  commentForms.forEach(form => {
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault(); // Stop the page from reloading!
+
+      const postId = this.getAttribute('data-postid');
+      const inputField = this.querySelector('.comment-input');
+      const commentText = inputField.value;
+      const submitBtn = this.querySelector('button');
+
+      // Temporary visual loading state
+      submitBtn.innerText = "...";
+      submitBtn.disabled = true;
+
+      try {
+        const response = await fetch(`/comment/${postId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ commentText: commentText })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // 1. Clear the input box
+          inputField.value = "";
+          
+          // 2. Build the new HTML for the comment
+          const newCommentHTML = `
+            <p class="mb-1 text-light">
+              <strong class="text-white">${data.username}:</strong> ${data.commentText}
+            </p>
+          `;
+
+          // 3. Inject it instantly into the correct comment list
+          const commentsList = document.getElementById(`comments-list-${postId}`);
+          commentsList.insertAdjacentHTML('beforeend', newCommentHTML);
+          
+          // 4. Auto-scroll to the bottom to see the new comment
+          commentsList.scrollTop = commentsList.scrollHeight;
+        }
+      } catch (err) {
+        console.error("Comment error:", err);
+      } finally {
+        // Reset the button
+        submitBtn.innerText = "Post";
+        submitBtn.disabled = false;
+      }
+    });
+  });
+
+  //for comments....^^
+
+  // Find all the save buttons on the page
+  const saveButtons = document.querySelectorAll('.save-btn');
+
+  saveButtons.forEach(button => {
+    button.addEventListener('click', async function(e) {
+      // 1. Get the exact post ID hidden in the button's data attribute
+      const postId = this.getAttribute('data-postid');
+      const textSpan = this.querySelector('span');
+      const icon = this.querySelector('i');
+
+      // 2. Temporarily change the button to show it's loading
+      textSpan.innerText = " Saving...";
+      this.style.pointerEvents = "none"; // Prevent double-clicking
+
+      try {
+        // 3. Send the stealth background request to the server!
+        const response = await fetch(`/save/${postId}`);
+        const data = await response.json();
+
+        if (data.success) {
+          // 4. Update the UI to show success instantly!
+          textSpan.innerText = " Saved!";
+          icon.className = "fas fa-check-circle"; // Change icon to a checkmark
+          this.style.color = "#28a745"; // Make it green
+        } else {
+          textSpan.innerText = " Error";
+        }
+      } catch (err) {
+        console.error("Fetch error:", err);
+        textSpan.innerText = " Error";
+      }
+    });
+  });
+
+  // --- 2. AJAX HARD DELETE SCRIPT ---
+  const deleteButtons = document.querySelectorAll('.delete-post-btn');
+
+  deleteButtons.forEach(button => {
+    button.addEventListener('click', async function(e) {
+      // Ask for confirmation before destroying data
+      const confirmDelete = confirm("Are you sure you want to permanently delete this post?");
+      
+      if (confirmDelete) {
+        const postId = this.getAttribute('data-postid');
+        // Find the specific post card on the screen
+        const postCard = this.closest('.box'); 
+
+        try {
+          const response = await fetch(`/delete/post/${postId}`, { method: 'POST' });
+          const data = await response.json();
+
+          if (data.success) {
+            // Instantly remove the card from the screen with a smooth fade out
+            postCard.style.transition = "opacity 0.3s ease";
+            postCard.style.opacity = "0";
+            setTimeout(() => { postCard.remove(); }, 300);
+          } else {
+            alert("Error: Could not delete post.");
+          }
+        } catch (err) {
+          console.error("Delete error:", err);
+        }
+      }
+    });
+  });
+
+  // --- AJAX INLINE FEED FOLLOW SCRIPT ---
+  const feedFollowButtons = document.querySelectorAll('.feed-follow-btn');
+
+  feedFollowButtons.forEach(btn => {
+    btn.addEventListener('click', async function() {
+      // 1. Grab the ID of the user we are trying to follow/unfollow
+      const userId = this.getAttribute('data-userid');
+      
+      // 2. Find EVERY follow button on the page that belongs to this specific user
+      const allButtonsForThisUser = document.querySelectorAll(`.feed-follow-btn[data-userid="${userId}"]`);
+
+      // 3. Visual feedback: Disable ALL of them while waiting for the server
+      allButtonsForThisUser.forEach(b => {
+        b.innerText = "...";
+        b.disabled = true;
+      });
+
+      try {
+        const response = await fetch(`/follow/${userId}`, { method: 'POST' });
+        const data = await response.json();
+
+        if (data.success) {
+          // 4. Server succeeded! Now loop through ALL matching buttons and update their UI
+          allButtonsForThisUser.forEach(b => {
+            if (data.isFollowing) {
+              b.innerText = "Following";
+              b.className = "btn btn-sm btn-outline-secondary ms-3 feed-follow-btn";
+            } else {
+              b.innerText = "Follow";
+              b.className = "btn btn-sm btn-primary ms-3 feed-follow-btn";
+            }
+          });
+        } else {
+          alert(data.error || "Something went wrong");
+          // If error, revert text
+          allButtonsForThisUser.forEach(b => { b.innerText = "Follow"; });
+        }
+      } catch (error) {
+        console.error("Follow error:", error);
+        allButtonsForThisUser.forEach(b => { b.innerText = "Error"; });
+      } finally {
+        // Re-enable all the buttons
+        allButtonsForThisUser.forEach(b => { b.disabled = false; });
+      }
+    });
+  });
+
+
+  </script>
+
 </body>
 </html>

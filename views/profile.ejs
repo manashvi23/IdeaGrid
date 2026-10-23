@@ -1,68 +1,706 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Bootstrap demo</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/stylesheets/profile.css">
   </head>
   <body>
-    <!-- to include the navbar -->
     <%- include('partials/navbar') %>
 
     <main class="containerpers">
+      <% if (error && error.length > 0) { %>
+        <div class="alert alert-danger text-center" role="alert" style="margin-top: 10px;">
+          <%= error %>
+        </div>
+      <% } %>
       <div class="profile">
-          <div class="avatar-container">
-            <img src="<%= user.dp || 'https://plus.unsplash.com/premium_photo-1701111288521-83b5df896e64?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8YmlyZCUyMGZhY2V8ZW58MHx8MHx8fDA%3D' %>" alt="" class="avatar">
+        
+        <% 
+          let isOwnProfile = true;
+          // This prevents crashes if you haven't updated your backend route yet
+          if (typeof loggedInUser !== 'undefined') {
+            isOwnProfile = (user.username === loggedInUser.username);
+          }
+        %>
+        <!-- <div class="avatar-container">
+          <img src="<%= user.dp || 'https://placehold.co/150x150/000/FFF?text=DP' %>" alt="profile pic" class="avatar">
+          
+          <% if (isOwnProfile) { %>
             <button class="edit-btn"><i class="bi bi-pen"></i></button>
             <form id="avatarUploadForm" action="/upload-avatar" method="post" enctype="multipart/form-data" style="display:none;">
-                <input type="file" id="profileImageInput" name="dp" style="display:none;">
+              <input type="file" id="profileImageInput" name="dp" style="display:none;">
             </form>
-          </div>
-          <p class="">Some tagline</p>
-          <h1 class="username"><%= user.username %></h1>
-          <h4 class="email"><%= user.email %></h4>
-          <p class="">some<br> description</p>
-          <!-- <a href="/logout" class="button">Logout</a> -->
-          <!-- Separate form for posts -->
-          <form id="profileUploadForm" action="/upload" method="post" enctype="multipart/form-data">
-              <input type="text" name="filecaption" placeholder="some caption">
-              <input type="file" name="file">
-              <input type="submit" value="Submit">
+          <% } %>
+        </div> ......replacing to add camera option-->
+        <div class="avatar-container position-relative d-inline-block">
+          <form id="avatarUploadForm" action="/upload-avatar" method="POST" enctype="multipart/form-data">
+            <img src="<%= user.dp || 'https://placehold.co/150x150/000/FFF?text=DP' %>" id="profileImagePreview" alt="profile pic" class="avatar">
+            
+            <% if (isOwnProfile) { %>
+              <button type="button" id="showOptionsBtn" class="edit-btn">
+                <i class="bi bi-pen"></i>
+              </button>
+
+              <div id="uploadOptionsMenu" class="text-center mt-2" style="display: none; position: absolute; z-index: 10; background: white; padding: 5px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+                  <label for="galleryInput" class="btn btn-outline-primary btn-sm m-1">
+                      <i class="bi bi-image"></i> Gallery
+                  </label>
+                  <label for="cameraInput" class="btn btn-outline-info btn-sm m-1">
+                      <i class="bi bi-camera"></i> Camera
+                  </label>
+              </div>
+
+              <input type="file" id="galleryInput" name="dp" accept="image/*" style="display: none;">
+              <input type="file" id="cameraInput" name="dp" accept="image/*" capture="user" style="display: none;">
+
+              <div id="confirmationUI" class="text-center mt-2" style="display: none; position: absolute; z-index: 10; background: white; padding: 10px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); width: max-content;">
+                  <p class="text-dark fw-bold mb-2 small">Apply this avatar?</p>
+                  <button type="button" id="cancelBtn" class="btn btn-secondary btn-sm">Cancel</button>
+                  <button type="submit" class="btn btn-success btn-sm">Apply</button>
+              </div>
+            <% } %>
           </form>
-          <div class="icons">
-              <a href=""><i class="bi bi-github"></i></a>
-              <a href=""><i class="bi bi-twitter"></i></a>
-              <a href=""><i class="bi bi-linkedin"></i></a>
+        </div>
+
+
+
+        <p class="text-muted mb-1"><%= user.tagline || 'Add a tagline...' %></p>
+        <h1 class="username m-0"><%= user.username %></h1>
+        <h4 class="email text-secondary fs-6"><%= user.email %></h4>
+        
+        <p class="mt-2" style="max-width: 400px; margin: 0 auto;">
+          <%- user.description ? user.description.replace(/\n/g, '<br>') : 'Write something about yourself...' %>
+        </p>
+
+        <!-- <div class="d-flex justify-content-center gap-4 my-3 text-center">
+          <div>
+            <h5 class="m-0 fw-bold"><%= user.posts ? user.posts.length : 0 %></h5>
+            <small class="text-muted">Posts</small>
           </div>
-      </div>
-    </main>
-    <div class="container">
-        <div class="cards flex">
-          <% user.posts.forEach(function(post){ %>
-            <div class="card" style="width: 18rem;">
-              <img src="/images/uploads/<%= post.image %>" class="card-img-top" alt="...">
-              <div class="card-body">
-                  <h5 class="card-title"><%= post.imageText %></h5>
+          <div>
+            <h5 class="m-0 fw-bold" id="follower-count"><%= user.followers ? user.followers.length : 0 %></h5>
+            <small class="text-muted">Followers</small>
+          </div>
+          <div>
+            <h5 class="m-0 fw-bold"><%= user.following ? user.following.length : 0 %></h5>
+            <small class="text-muted">Following</small>
+          </div>
+        </div> -->
+        <div class="d-flex justify-content-center gap-4 my-3 text-center">
+            <div>
+              <h5 class="m-0 fw-bold"><%= user.posts ? user.posts.length : 0 %></h5>
+              <small class="text-muted">Posts</small>
+            </div>
+            <div style="cursor: pointer;" class="network-trigger" data-bs-toggle="modal" data-bs-target="#networkModal" data-type="followers" data-userid="<%= user._id %>">
+              <h5 class="m-0 fw-bold text-primary" id="follower-count"><%= user.followers ? user.followers.length : 0 %></h5>
+              <small class="text-muted">Followers</small>
+            </div>
+            <div style="cursor: pointer;" class="network-trigger" data-bs-toggle="modal" data-bs-target="#networkModal" data-type="following" data-userid="<%= user._id %>">
+              <h5 class="m-0 fw-bold text-primary"><%= user.following ? user.following.length : 0 %></h5>
+              <small class="text-muted">Following</small>
+            </div>
+        </div>
+
+        <div class="modal fade" id="networkModal" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content text-dark">
+              <div class="modal-header">
+                <h5 class="modal-title text-capitalize" id="networkModalTitle">List</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body" id="networkModalBody">
+                <div class="text-center text-muted my-4">
+                    <div class="spinner-border spinner-border-sm" role="status"></div> Loading...
+                </div>
               </div>
             </div>
-          <% }) %>
+          </div>
+        </div>
+
+        <div class="profile-actions text-center">
+          <% if (isOwnProfile) { %>
+            <button type="button" class="btn btn-sm btn-outline-dark mt-3 mb-3" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+              <i class="bi bi-pencil-square"></i> Edit Profile
+            </button>
+          <% } else { %>
+            <% 
+              // Check if the logged-in user is already following this profile
+              const isFollowing = user.followers && user.followers.some(followerId => followerId.toString() === loggedInUser._id.toString());
+            %>
+            <button class="btn btn-sm <%= isFollowing ? 'btn-outline-dark' : 'btn-primary' %> follow-btn mt-3 mb-3" data-userid="<%= user._id %>">
+              <%= isFollowing ? 'Following' : 'Follow' %>
+            </button>
+          <% } %>
+        </div>
+        <% if (isOwnProfile) { %>
+          <form id="profileUploadForm" action="/upload" method="post" enctype="multipart/form-data">
+            <div style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 10px;">
+              <select id="moodSelect" class="btn btn-sm btn-outline-secondary">
+                <option value="professional">👔 Professional</option>
+                <option value="casual" selected>😊 Casual</option>
+                <option value="witty">🔥 Witty</option>
+                <option value="genz">💅 Gen Z</option>
+              </select>
+
+              <input type="text" id="captionInput" name="filecaption" placeholder="some caption">
+              <button type="button" id="polishBtn" class="btn btn-sm btn-dark">✨ Polish</button>
+            </div>
+            
+            <div style="margin-bottom: 10px;">
+              <input type="file" name="file">
+            </div>
+            
+            <input type="submit" value="Submit" class="btn btn-primary">
+          </form>
+        <% } %>
+        <div class="icons mt-3">
+          <% if (user.socials && user.socials.instagram) { %>
+            <a href="<%= user.socials.instagram %>" target="_blank"><i class="bi bi-instagram fs-4 text-dark mx-2"></i></a>
+          <% } %>
+          <% if (user.socials && user.socials.twitter) { %>
+            <a href="<%= user.socials.twitter %>" target="_blank"><i class="bi bi-twitter fs-4 text-dark mx-2"></i></a>
+          <% } %>
+          <% if (user.socials && user.socials.facebook) { %>
+            <a href="<%= user.socials.facebook %>" target="_blank"><i class="bi bi-facebook fs-4 text-dark mx-2"></i></a>
+          <% } %>
+        </div>
+
+      </div>
+    </main>
+
+    <div class="container mt-4 mb-3 d-flex justify-content-center">
+      <div class="btn-group" role="group" aria-label="Profile View Toggles">
+        <button type="button" class="btn btn-dark active" id="tab-uploads" onclick="switchTab('uploads')">My Posts</button>
+        <button type="button" class="btn btn-outline-dark" id="tab-saved" onclick="switchTab('saved')">Saved Posts</button>
+      </div>
+    </div>
+
+    <div class="container" id="grid-uploads">
+      <div class="cards flex mb-5" id="uploads-container">
         </div>
     </div>
-    <h1>Hello, world!</h1>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
-  </body>
-  <script>
-    document.querySelector(".edit-btn").addEventListener("click", function() {
-        console.log("Edit button clicked");
-        document.querySelector("#profileImageInput").click();
-    });
 
-    document.querySelector("#profileImageInput").addEventListener("change", function() {
-        console.log("File selected:", this.files);
-        document.querySelector("#avatarUploadForm").submit();
-    });
-  </script>
+    <div class="container d-none" id="grid-saved">
+      <div class="cards flex mb-5" id="saved-container">
+        </div>
+    </div>
+
+    <div id="scroll-sentinel" class="d-flex justify-content-center my-4">
+      <div class="spinner-border text-secondary" role="status" id="loading-spinner">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+
+    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content text-dark">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          
+          <form action="/profile/update" method="POST">
+            <div class="modal-body">
+              
+              <div class="mb-3">
+                <label class="form-label text-muted small">Tagline</label>
+                <input type="text" class="form-control" name="tagline" value="<%= user.tagline || '' %>" placeholder="e.g., Full Stack Developer">
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label text-muted small">Description / Bio</label>
+                <textarea class="form-control" name="description" rows="3" placeholder="Tell us about yourself..."><%= user.description || '' %></textarea>
+              </div>
+
+              <hr>
+              <h6 class="text-muted mb-3">Social Links</h6>
+
+              <div class="input-group mb-2">
+                <span class="input-group-text"><i class="bi bi-instagram"></i></span>
+                <input type="url" class="form-control" name="instagram" value="<%= (user.socials && user.socials.instagram) ? user.socials.instagram : '' %>" placeholder="https://instagram.com/yourusername">
+              </div>
+
+              <div class="input-group mb-2">
+                <span class="input-group-text"><i class="bi bi-twitter"></i></span>
+                <input type="url" class="form-control" name="twitter" value="<%= (user.socials && user.socials.twitter) ? user.socials.twitter : '' %>" placeholder="https://twitter.com/yourusername">
+              </div>
+
+              <div class="input-group mb-2">
+                <span class="input-group-text"><i class="bi bi-facebook"></i></span>
+                <input type="url" class="form-control" name="facebook" value="<%= (user.socials && user.socials.facebook) ? user.socials.facebook : '' %>" placeholder="https://facebook.com/yourusername">
+              </div>
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+          </form>
+
+        </div>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="/javascripts/script.js"></script>
+    <script>
+      // Adding a check here so this doesn't break on public profiles where the button is hidden
+      // const editBtn = document.querySelector(".edit-btn");
+      // if(editBtn) {
+      //   editBtn.addEventListener("click", function() {
+      //     document.querySelector("#profileImageInput").click();
+      //   });
+      // }
+
+      // const profileImageInput = document.querySelector("#profileImageInput");
+      // if(profileImageInput) {
+      //   profileImageInput.addEventListener("change", function() {
+      //     document.querySelector("#avatarUploadForm").submit();
+      //   });
+      // }
+      // Grab the new options button
+      const showOptionsBtn = document.getElementById('showOptionsBtn');
+      
+      // We only run this logic if it's the user's own profile (the button exists)
+      if (showOptionsBtn) {
+        const uploadOptionsMenu = document.getElementById('uploadOptionsMenu');
+        const galleryInput = document.getElementById('galleryInput');
+        const cameraInput = document.getElementById('cameraInput');
+        const profileImagePreview = document.getElementById('profileImagePreview');
+        const confirmationUI = document.getElementById('confirmationUI');
+        const cancelBtn = document.getElementById('cancelBtn');
+        
+        // Save the current avatar
+        const originalAvatarSrc = profileImagePreview.src;
+
+        // Toggle the Gallery/Camera menu
+        showOptionsBtn.addEventListener('click', function(e) {
+            e.preventDefault(); // Stop any default button behaviors
+            if (uploadOptionsMenu.style.display === 'none') {
+                uploadOptionsMenu.style.display = 'block';
+            } else {
+                uploadOptionsMenu.style.display = 'none';
+            }
+        });
+
+        // Read the file and update the image
+        function handleImageSelection(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    profileImagePreview.src = e.target.result; 
+                    uploadOptionsMenu.style.display = 'none';  
+                    confirmationUI.style.display = 'block';    
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Attach function to inputs
+        galleryInput.addEventListener('change', handleImageSelection);
+        cameraInput.addEventListener('change', handleImageSelection);
+
+        // Cancel and revert image
+        cancelBtn.addEventListener('click', function() {
+            profileImagePreview.src = originalAvatarSrc; 
+            galleryInput.value = ''; 
+            cameraInput.value = '';  
+            confirmationUI.style.display = 'none'; 
+        });
+      }
+
+
+    </script>
+
+    <script>
+      const polishBtn = document.getElementById('polishBtn');
+      const captionInput = document.getElementById('captionInput');
+      const moodSelect = document.getElementById('moodSelect'); // 👈 Grab the dropdown
+      
+      if(polishBtn) {
+        polishBtn.addEventListener('click', async () => {
+          const draftText = captionInput.value;
+          const selectedMood = moodSelect.value; // 👈 Get the chosen mood
+
+          if (!draftText) {
+            alert("Type something first before polishing!");
+            return;
+          }
+
+          // Change button text while waiting for AI
+          const originalBtnText = polishBtn.innerText;
+          polishBtn.innerText = "⏳...";
+          polishBtn.disabled = true;
+
+          try {
+            // Send the text to your Express route
+            const response = await fetch('/api/polish', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              // body: JSON.stringify({ draft: draftText })
+              // 👇 Send BOTH the text and the mood to the backend
+              body: JSON.stringify({ draft: draftText, mood: selectedMood })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+              // Replace the text in the input box!
+              captionInput.value = data.polishedText;
+            } else {
+              alert(data.error || "Something went wrong.");
+            }
+          } catch (error) {
+            console.error(error);
+            alert("Network error.");
+          } finally {
+            // Reset the button
+            polishBtn.innerText = originalBtnText;
+            polishBtn.disabled = false;
+          }
+        });
+      }
+    </script>
+    <script>
+      const avatarImg = document.querySelector('.avatar');
+      
+      // When the avatar is clicked, toggle the zoom class
+      if(avatarImg) {
+        avatarImg.addEventListener('click', function(e) {
+          e.stopPropagation(); // Prevents the document click listener below from firing immediately
+          this.classList.toggle('zoomed-avatar');
+        });
+
+        // When the user clicks anywhere else on the page, remove the zoom
+        document.addEventListener('click', function() {
+          if (avatarImg.classList.contains('zoomed-avatar')) {
+            avatarImg.classList.remove('zoomed-avatar');
+          }
+        });
+      }
+    </script>
+    
+    <script>
+      const followBtn = document.querySelector('.follow-btn');
+      if (followBtn) {
+        followBtn.addEventListener('click', async function() {
+          const userId = this.getAttribute('data-userid');
+          const followerCountEl = document.getElementById('follower-count');
+          let currentCount = parseInt(followerCountEl.innerText);
+
+          // Visual feedback immediately while waiting for server
+          const originalText = this.innerText;
+          this.innerText = "...";
+          this.disabled = true;
+
+          try {
+            const response = await fetch(`/follow/${userId}`, { method: 'POST' });
+            const data = await response.json();
+
+            if (data.success) {
+              if (data.isFollowing) {
+                // They just followed
+                this.innerText = "Following";
+                this.className = "btn btn-sm btn-outline-dark follow-btn mt-3 mb-3";
+                followerCountEl.innerText = currentCount + 1;
+              } else {
+                // They just unfollowed
+                this.innerText = "Follow";
+                this.className = "btn btn-sm btn-primary follow-btn mt-3 mb-3";
+                followerCountEl.innerText = currentCount - 1;
+              }
+            } else {
+              alert(data.error || "Something went wrong");
+              this.innerText = originalText;
+            }
+          } catch (error) {
+            console.error("Follow error:", error);
+            this.innerText = originalText;
+          } finally {
+            this.disabled = false;
+          }
+        });
+      }
+    </script>
+    <script>
+      // --- FIXED: Captured the EJS server boolean here first to resolve VS Code formatting syntax red lines ---
+      const clientIsOwnProfile = <%= isOwnProfile %>;
+
+      // --- 1. EVENT DELEGATION FOR DELETE AND SAVE ---
+      // (This listens for clicks on dynamically added HTML cards)
+      document.body.addEventListener('click', async function(e) {
+        
+        // --- for delete feature ---
+        const deleteBtn = e.target.closest('.delete-post-btn');
+        if (deleteBtn) {
+          const confirmDelete = confirm("Are you sure you want to permanently delete this post?");
+          if (confirmDelete) {
+            const postId = deleteBtn.getAttribute('data-postid');
+            const postCard = deleteBtn.closest('.card'); 
+            try {
+              const response = await fetch(`/delete/post/${postId}`, { method: 'POST' });
+              const data = await response.json();
+              if (data.success) {
+                postCard.style.transition = "opacity 0.3s ease, transform 0.3s ease";
+                postCard.style.opacity = "0";
+                postCard.style.transform = "scale(0.9)";
+                setTimeout(() => { postCard.remove(); }, 300);
+              } else {
+                alert("Error: Could not delete post.");
+              }
+            } catch (err) {
+              console.error("Delete error:", err);
+            }
+          }
+        }
+
+        // --- for soft remove (unsave) feature ---
+        const saveBtn = e.target.closest('.save-btn');
+        if (saveBtn) {
+          const postId = saveBtn.getAttribute('data-postid');
+          const textSpan = saveBtn.querySelector('span');
+          const postCard = saveBtn.closest('.card'); 
+
+          textSpan.innerText = " Removing...";
+          saveBtn.style.pointerEvents = "none"; 
+          try {
+            const response = await fetch(`/save/${postId}`);
+            const data = await response.json();
+            if (data.success && !data.isSaved) {
+              postCard.style.transition = "opacity 0.3s ease, transform 0.3s ease";
+              postCard.style.opacity = "0";
+              postCard.style.transform = "scale(0.9)";
+              setTimeout(() => { postCard.remove(); }, 300);
+            } else {
+              textSpan.innerText = " Error";
+              saveBtn.style.pointerEvents = "auto";
+            }
+          } catch (err) {
+            console.error("Fetch error:", err);
+            textSpan.innerText = " Error";
+            saveBtn.style.pointerEvents = "auto";
+          }
+        }
+      });
+
+      // --- 2. INFINITE SCROLL & TAB ENGINE ---
+      let currentTab = 'uploads';
+      let pageUploads = 1;
+      let pageSaved = 1;
+      let loading = false;
+      let hasMoreUploads = true;
+      let hasMoreSaved = true;
+
+      const uploadsContainer = document.getElementById('uploads-container');
+      const savedContainer = document.getElementById('saved-container');
+      const spinner = document.getElementById('loading-spinner');
+
+      function switchTab(tabName) {
+        if (currentTab === tabName) return; 
+        currentTab = tabName;
+
+        const btnUploads = document.getElementById('tab-uploads');
+        const btnSaved = document.getElementById('tab-saved');
+
+        if (tabName === 'uploads') {
+          btnUploads.className = "btn btn-dark active";
+          btnSaved.className = "btn btn-outline-dark";
+          document.getElementById('grid-uploads').classList.remove('d-none');
+          document.getElementById('grid-saved').classList.add('d-none');
+        } else {
+          btnUploads.className = "btn btn-outline-dark";
+          btnSaved.className = "btn btn-dark active";
+          document.getElementById('grid-saved').classList.remove('d-none');
+          document.getElementById('grid-uploads').classList.add('d-none');
+          
+          if (pageSaved === 1 && hasMoreSaved) {
+            fetchPosts('saved');
+          }
+        }
+        updateSpinnerVisibility();
+      }
+
+      async function fetchPosts(type) {
+        loading = true;
+        spinner.style.display = 'block';
+        const page = type === 'uploads' ? pageUploads : pageSaved;
+        
+        try {
+          // Note: When viewing a specific user, we should pass their username in the API call, 
+          // but for now it fetches the logged-in user's posts.
+          const usernameQuery = window.location.pathname.split('/')[2] || '';
+          const fetchUrl = `/api/profile/posts?type=${type}&page=${page}&user=${usernameQuery}`;
+          
+          const response = await fetch(fetchUrl);
+          const data = await response.json();
+
+          if (data.success) {
+            if (data.posts.length === 0 && page === 1) {
+              const msg = type === 'uploads' ? 'No posts uploaded yet.' : 'You haven’t downloaded any posts yet.';
+              const container = type === 'uploads' ? uploadsContainer : savedContainer;
+              container.innerHTML = `<p class="text-muted w-100 text-center">${msg}</p>`;
+            }
+
+            data.posts.forEach(post => {
+              let cardHTML = '';
+              if (type === 'uploads') {
+                cardHTML = `
+                  <div class="card" style="width: 18rem;">
+                    <img src="${post.image}" class="card-img-top" alt="..." loading="lazy">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                      <h5 class="card-title m-0">${post.imageText || 'No caption'}</h5>
+                      
+                      ${clientIsOwnProfile ? `
+                      <a href="javascript:void(0)" data-postid="${post._id}" class="btn btn-sm btn-outline-danger delete-post-btn" title="Delete Post">
+                        <i class="bi bi-trash"></i>
+                      </a>` : ''}
+                      
+                    </div>
+                  </div>
+                `;
+                uploadsContainer.insertAdjacentHTML('beforeend', cardHTML);
+              } else {
+                const author = post.user && post.user.username ? post.user.username : 'Unknown';
+                const dlLink = post.image.replace('/upload/', '/upload/fl_attachment/');
+                cardHTML = `
+                  <div class="card" style="width: 18rem;">
+                    <img src="${post.image}" class="card-img-top" alt="Downloaded image" loading="lazy">
+                    <div class="card-body">
+                      <h5 class="card-title">${post.imageText || 'No caption'}</h5>
+                      <p class="card-text text-muted">By ${author}</p>
+                      <div class="d-flex gap-2 mt-2 align-items-center">
+                        <a href="${post.image}" class="btn btn-outline-secondary btn-sm" target="_blank" title="View Image">
+                          <i class="bi bi-arrows-fullscreen"></i>
+                        </a>
+                        <a href="${dlLink}" class="btn btn-outline-primary btn-sm" title="Download to Device">
+                          <i class="bi bi-download"></i>
+                        </a>
+                        
+                        ${clientIsOwnProfile ? `
+                        <a href="javascript:void(0)" data-postid="${post._id}" class="btn btn-sm btn-success save-btn ms-auto">
+                          <i class="bi bi-bookmark-check"></i> <span>Saved</span>
+                        </a>` : ''}
+                        
+                      </div>
+                    </div>
+                  </div>
+                `;
+                savedContainer.insertAdjacentHTML('beforeend', cardHTML);
+              }
+            });
+
+            if (type === 'uploads') {
+              hasMoreUploads = data.hasMore;
+              if (data.hasMore) pageUploads++;
+            } else {
+              hasMoreSaved = data.hasMore;
+              if (data.hasMore) pageSaved++;
+            }
+          }
+        } catch (err) {
+          console.error("Fetch Error:", err);
+        } finally {
+          loading = false;
+          updateSpinnerVisibility();
+        }
+      }
+
+      function updateSpinnerVisibility() {
+        if (currentTab === 'uploads' && !hasMoreUploads) spinner.style.display = 'none';
+        else if (currentTab === 'saved' && !hasMoreSaved) spinner.style.display = 'none';
+        else spinner.style.display = 'block';
+      }
+
+      // Intersection Observer setup
+      const sentinel = document.getElementById('scroll-sentinel');
+      const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && !loading) {
+          if (currentTab === 'uploads' && hasMoreUploads) {
+            fetchPosts('uploads');
+          } else if (currentTab === 'saved' && hasMoreSaved) {
+            fetchPosts('saved');
+          }
+        }
+      }, { rootMargin: '100px' }); 
+      
+      observer.observe(sentinel);
+
+      // Initialize page
+      fetchPosts('uploads');
+
+      //addinf followers list
+      
+    // Grab the modal elements
+    const networkModal = document.getElementById('networkModal');
+    const networkModalTitle = document.getElementById('networkModalTitle');
+    const networkModalBody = document.getElementById('networkModalBody');
+
+    // Listen for the moment the Modal begins to open
+    if(networkModal) {
+        networkModal.addEventListener('show.bs.modal', async function (event) {
+            // 1. Find out which specific button triggered the modal
+            const button = event.relatedTarget; 
+            const type = button.getAttribute('data-type'); // 'followers' or 'following'
+            const userId = button.getAttribute('data-userid');
+
+            // 2. Set the Title and show a loading spinner
+            networkModalTitle.innerText = type;
+            networkModalBody.innerHTML = `
+                <div class="text-center text-muted my-4">
+                    <div class="spinner-border spinner-border-sm" role="status"></div> Loading...
+                </div>
+            `;
+
+            try {
+                // 3. Fetch the data from your new API Route
+                const response = await fetch(`/api/network/${userId}/${type}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    // 4. Clear the spinner
+                    networkModalBody.innerHTML = '';
+
+                    // 5. Handle empty lists
+                    if (data.list.length === 0) {
+                        networkModalBody.innerHTML = `<p class="text-center text-muted my-3">No ${type} yet.</p>`;
+                        return;
+                    }
+
+                    // 6. Loop through the array and build the HTML for each user
+                    data.list.forEach(person => {
+                        const defaultDp = 'https://placehold.co/150x150/000/FFF?text=DP';
+                        const avatar = person.dp ? person.dp : defaultDp;
+                        const tagline = person.tagline ? person.tagline : '';
+
+                        // We create a clean row for each person
+                        const userCard = `
+                            <div class="d-flex align-items-center mb-3">
+                                <img src="${avatar}" alt="DP" class="rounded-circle me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                                <div class="flex-grow-1">
+                                    <h6 class="m-0 fw-bold">
+                                        <a href="/user/${person.username}" class="text-dark text-decoration-none">${person.username}</a>
+                                    </h6>
+                                    <small class="text-muted" style="font-size: 0.8rem;">${tagline}</small>
+                                </div>
+                            </div>
+                        `;
+                        // Inject it into the modal
+                        networkModalBody.insertAdjacentHTML('beforeend', userCard);
+                    });
+                } else {
+                    networkModalBody.innerHTML = `<p class="text-danger text-center">Failed to load ${type}.</p>`;
+                }
+            } catch (error) {
+                console.error("Error loading network list:", error);
+                networkModalBody.innerHTML = `<p class="text-danger text-center">Network error.</p>`;
+            }
+        });
+    }
+
+    </script>
+  </body>
 </html>
